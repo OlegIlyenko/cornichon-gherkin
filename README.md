@@ -1,4 +1,6 @@
-## cornichon-gherkin [![Build Status](https://travis-ci.org/OlegIlyenko/cornichon-gherkin.svg?branch=master)](https://travis-ci.org/OlegIlyenko/cornichon-gherkin)
+## cornichon-gherkin
+
+[![Build Status](https://travis-ci.org/OlegIlyenko/cornichon-gherkin.svg?branch=master)](https://travis-ci.org/OlegIlyenko/cornichon-gherkin)
 
 [Cornichon](http://agourlay.github.io/cornichon/) - [Gherkin](https://github.com/cucumber/cucumber/wiki/Gherkin) integration. Combines clean extensible
 functional core from [Cornichon](http://agourlay.github.io/cornichon/) with great BDD feature definition language -
