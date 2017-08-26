@@ -14,4 +14,24 @@ Out-of-the-box supported tags:
 
 You can define additional steps `Before`, `After` or `Around` scenarios annotated with particular tag. Here is an example:
 
+```scala
+Steps {
+  Before("@debug") {
+    show_session
+  }
 
+  After("@debug") {
+    show_session
+  }
+
+  Around("@moDebugging") { steps ⇒
+    StepList {
+      Then I print_step("Printing before")
+
+      steps
+
+      Then I print_step("Printing after")
+    }
+  }
+}
+```
