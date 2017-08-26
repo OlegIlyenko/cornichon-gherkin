@@ -1,9 +1,9 @@
 package cornichonGherkin
 
+import com.github.agourlay.cornichon.core.Step
+
 import scala.language.experimental.{macros => `scalac, please just let me do it!`}
-
 import com.github.agourlay.cornichon.dsl.BodyElementCollector
-
 import cornichonGherkin.macros._
 
 trait GherkinStepHelper {
@@ -39,4 +39,9 @@ trait GherkinStepHelper {
 
   def Steps: BodyElementCollector[GherkinStep, List[GherkinStep]] =
     BodyElementCollector[GherkinStep, List[GherkinStep]](identity)
+
+  def StepList: BodyElementCollector[Step, List[Step]] =
+    BodyElementCollector[Step, List[Step]](identity)
+
+
 }

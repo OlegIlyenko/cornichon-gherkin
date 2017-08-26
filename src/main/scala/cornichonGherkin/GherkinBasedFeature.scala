@@ -53,9 +53,15 @@ object GherkinBasedFeature {
       val ignored = (focused.nonEmpty && !stepDefinitions.isFocused(tags)) || stepDefinitions.isIgnored(tags)
       val pending = stepDefinitions.isPending(tags)
 
-      val steps = (backgroundSteps ++ s.getSteps.asScala).map(defineStep(_, stepDefinitions, tags))
+      val beforeSteps = stepDefinitions.before(tags)
+      val afterSteps = stepDefinitions.after(tags)
+      val bgSteps = backgroundSteps.map(defineStep(_, stepDefinitions, tags))
+      val steps = s.getSteps.asScala.map(defineStep(_, stepDefinitions, tags))
+      val allSteps = bgSteps ++ beforeSteps ++ steps ++ afterSteps
+      val aroundSteps = stepDefinitions.around(tags, allSteps.toList)
+      
 
-      ScenarioDef(s.getName, steps.toList, ignored = ignored, pending = pending)
+      ScenarioDef(s.getName, aroundSteps, ignored = ignored, pending = pending)
     }
 
     FeatureDef(feature.getName, cScenarios.toList)
@@ -72,18 +78,7 @@ object GherkinBasedFeature {
     
     foundStep match {
       case Some(s) ⇒
-        val withTitle = s.setTitle(step.getText)
-
-        val before = stepDefinitions.before(tags)
-        val after = stepDefinitions.after(tags)
-
-        val withHooks =
-          if (before.nonEmpty || after.nonEmpty)
-            AttachStep(step.getText, (before :+ withTitle) ++ after)
-          else
-            withTitle
-
-        stepDefinitions.around(tags, withHooks)
+        s.setTitle(step.getText)
 
       case None ⇒
         val message = "Step definition not found for: " + step.getText
@@ -111,7 +106,7 @@ case class GherkinStepColl(allDefinitions: List[GherkinStep], featureTags: Set[S
     before.flatMap { b ⇒
       val inter = b.tags.intersect(allTags)
 
-      if (inter.nonEmpty) Some(b.step(inter.head)) else None
+      if (inter.nonEmpty) b.steps(inter.head) else Nil
     }
   }
 
@@ -121,18 +116,18 @@ case class GherkinStepColl(allDefinitions: List[GherkinStep], featureTags: Set[S
     after.flatMap { a ⇒
       val inter = a.tags.intersect(allTags)
 
-      if (inter.nonEmpty) Some(a.step(inter.head)) else None
+      if (inter.nonEmpty) a.steps(inter.head) else Nil
     }
   }
 
-  def around(tags: Set[String], s: Step): Step = {
+  def around(tags: Set[String], s: List[Step]): List[Step] = {
     val allTags = tags ++ featureTags
 
     around.foldLeft(s) {
       case (acc, a) ⇒
         val inter = a.tags.intersect(allTags)
 
-        if (inter.nonEmpty) a.step(inter.head, acc) else acc
+        if (inter.nonEmpty) a.steps(inter.head, acc) else acc
     }
   }
 }

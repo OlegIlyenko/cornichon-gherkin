@@ -60,20 +60,22 @@ object StepDefinition {
   }
 }
 
-case class After(tags: Set[String], step: String ⇒ Step) extends GherkinStep
+case class After(tags: Set[String], steps: String ⇒ List[Step]) extends GherkinStep
 
 object After {
-  def apply(tags: String*)(step: ⇒ Step): After = After(tags.toSet, _ ⇒ step)
+  def apply(tags: String*): BodyElementCollector[Step, After] =
+    BodyElementCollector[Step, After](steps ⇒ After(tags.toSet, _ ⇒ steps))
 }
 
-case class Before(tags: Set[String], step: String ⇒ Step) extends GherkinStep
+case class Before(tags: Set[String], steps: String ⇒ List[Step]) extends GherkinStep
 
 object Before {
-  def apply(tags: String*)(step: ⇒ Step): Before = Before(tags.toSet, _ ⇒ step)
+  def apply(tags: String*): BodyElementCollector[Step, Before] =
+    BodyElementCollector[Step, Before](steps ⇒ Before(tags.toSet, _ ⇒ steps))
 }
 
-case class Around(tags: Set[String], step: (String, Step) ⇒ Step) extends GherkinStep
+case class Around(tags: Set[String], steps: (String, List[Step]) ⇒ List[Step]) extends GherkinStep
 
 object Around {
-  def apply(tags: String*)(step: Step ⇒ Step): Around = Around(tags.toSet, (_, s) ⇒ step(s))
+  def apply(tags: String*)(step: List[Step] ⇒ List[Step]): Around = Around(tags.toSet, (_, s) ⇒ step(s))
 }
