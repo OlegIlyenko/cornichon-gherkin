@@ -1,6 +1,7 @@
 package cornichonGherkin
 
 import com.github.agourlay.cornichon.core.{CornichonError, IllegalKey, Session}
+import cats.syntax.either._
 
 sealed trait Argument[T] {
   def resolve(s: Session): scala.Either[CornichonError, T]

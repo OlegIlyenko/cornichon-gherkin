@@ -51,7 +51,11 @@ class GherkinStepMacro(context: blackbox.Context) extends {
 
       val regextractors = if (withArg) args.dropRight(1) else args
 
-      q"""_root_.cornichonGherkin.${TermName("StepBuilder" + arity)}(fn ⇒ _root_.cornichonGherkin.StepDefinition($parts, ${regextractors.toList}, (step, matches) ⇒ $impl))"""
+      q"""
+         import cats.syntax.either._
+         
+         _root_.cornichonGherkin.${TermName("StepBuilder" + arity)}(fn ⇒ _root_.cornichonGherkin.StepDefinition($parts, ${regextractors.toList}, (step, matches) ⇒ $impl))
+      """
     } else reportErrors(errors)
   }
 

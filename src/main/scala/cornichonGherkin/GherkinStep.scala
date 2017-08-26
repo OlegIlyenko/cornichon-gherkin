@@ -18,22 +18,33 @@ object GherkinStep extends GherkinStepHelper {
 
 case class StepDefinition(parts: List[String], extractors: Seq[RegExpExtractor[_]], stepFn: (GStep, Vector[String]) ⇒ Either[CornichonError, Step]) extends GherkinStep {
   val pattern = {
-    val escaped = parts.map(p ⇒ if (p.isEmpty) p else "\\Q" + p + "\\E")
-
     val fullPattern =
-      escaped.zipWithIndex.foldLeft("") {
-        case (acc, (p, idx)) if idx < extractors.size ⇒ acc + p + "(" + extractors(idx).regexp.toString + ")"
+      parts.zipWithIndex.foldLeft("") {
+        case (acc, (p, idx)) if idx < extractors.size ⇒
+          val ex = extractors(idx)
+
+          acc + (if (ex.optional) optEscape(p) else escape(p)) + "(" + ex.regexp.toString + ")" + (if (ex.optional) "?" else "")
         case (acc, (p, _)) ⇒ acc + p
       }
 
     Pattern.compile(fullPattern)
   }
 
+  private def escape(s: String) = if (s.isEmpty) s else "\\Q" + s + "\\E"
+  private def optEscape(s: String) = {
+    val mat = "^(.*?)\\s+$".r.pattern.matcher(s)
+
+    if (mat.matches())
+      escape(mat.group(1)) + "\\s*"
+    else
+      escape(s)
+  }
+
   def steps(step: GStep): Option[Step] = {
     val mat = pattern.matcher(step.getText)
 
     if (mat.matches()) {
-      val validated = stepFn(step, extractors.indices.toVector.map(idx ⇒ mat.group(idx + 1)))
+      val validated = stepFn(step, extractors.indices.toVector.map(idx ⇒ Option(mat.group(idx + 1)) getOrElse ""))
 
       validated.fold(
         error ⇒ Some(GherkinStep.errorStep("Can't create step definition", error)),

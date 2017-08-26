@@ -13,7 +13,7 @@ import scala.collection.JavaConverters._
 trait GherkinBasedFeature extends CornichonFeature with GherkinStepHelper with ExtractorHelper with ColumnHelper {
   import GherkinBasedFeature._
 
-  def featureFile: String
+  def featureFile: String = discoverFeature(this.getClass)
   def stepDefinitions: List[GherkinStep]
 
   lazy val feature = generateFeature(loadFeature(featureFile), stepDefinitions)
@@ -27,6 +27,16 @@ object GherkinBasedFeature {
   val FocusTag = "@focus"
   val IgnoreTag = "@ignore"
   val PendingTag = "@pending"
+
+  def discoverFeature(clazz: Class[_]) = {
+    val mat = """^(\w)(.*)Feature$""".r.pattern.matcher(clazz.getSimpleName)
+
+    if (mat.matches())
+      mat.group(1).toLowerCase + mat.group(2) + ".feature"
+    else
+      throw GherkinError(s"Can't infer the feature filer name based on the class name '${clazz.getSimpleName}'. Please rename the test with `Feature` suffix or override `featureFile` method.").toException
+  }
+
 
   def loadFeature(fileName: String): GherkinDocument =
     getClass.getResourceAsStream("/" + fileName) match {
@@ -132,4 +142,4 @@ case class GherkinStepColl(allDefinitions: List[GherkinStep], featureTags: Set[S
   }
 }
 
-class SimpleGherkinFeature(val featureFile: String, val stepDefinitions: List[GherkinStep] = Nil) extends GherkinBasedFeature
+class SimpleGherkinFeature(override val featureFile: String, val stepDefinitions: List[GherkinStep] = Nil) extends GherkinBasedFeature

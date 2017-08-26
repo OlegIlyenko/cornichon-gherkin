@@ -10,6 +10,7 @@ trait Extractor[T]
 trait ArgumentExtractor[T] extends Extractor[T]
 
 import cats.instances.string._
+import cats.syntax.either._
 
 object Extractor extends ExtractorHelper
 
@@ -31,11 +32,12 @@ trait ExtractorHelper {
     })
 
   lazy val tableArg: TableExtractor[List[Map[String, String]]] = tableArg(t ⇒ Right(t))
+  lazy val docStrArg: DocStringExtractor[String] = docStrArg(s ⇒ Right(s))
   lazy val strArg = regExpArg(".*?", s ⇒ Right(s))
   lazy val intArg = regExpArg("\\d+", s ⇒ Right(s.toInt))
 }
 
-case class RegExpExtractor[T](regexp: Pattern, transformFn: String ⇒ Either[CornichonError, T]) extends Extractor[T] {
+case class RegExpExtractor[T](regexp: Pattern, transformFn: String ⇒ Either[CornichonError, T], optional: Boolean = false) extends Extractor[T] {
   def transform[R](fn: T ⇒ Either[CornichonError, R]): RegExpExtractor[R] =
     copy(transformFn = transformFn(_).flatMap(fn))
 
@@ -46,6 +48,10 @@ case class RegExpExtractor[T](regexp: Pattern, transformFn: String ⇒ Either[Co
   def ph: RegExpExtractor[Argument[T]] = copy(
     regexp = Pattern.compile(RegExpExtractor.PlaceholderRegexp + "|" + regexp.toString),
     transformFn = s ⇒ if (s.startsWith("<")) Right(Placeholder(s, transformFn)) else transformFn(s).map(Value(_)))
+
+  def opt: RegExpExtractor[Option[T]] = copy(
+    optional = true,
+    transformFn = s ⇒ if (s.trim.isEmpty) Right(None) else transformFn(s).map(Some(_)))
 }
 
 object RegExpExtractor {

@@ -3,6 +3,7 @@ package cornichonGherkin
 import com.github.agourlay.cornichon.core.CornichonError
 import com.github.agourlay.cornichon.json.CornichonJson
 import cats.syntax.traverse._
+import cats.syntax.either._
 import cats.instances.list._
 import cats.instances.either._
 import sangria.util.StringUtil

@@ -1,6 +1,7 @@
 package cornichonGherkin
 
 import com.github.agourlay.cornichon.core.CornichonError
+import cats.syntax.either._
 
 object ColumnGroup {
   val matchAll: Map[String, String] ⇒ Boolean = Function.const(true)
