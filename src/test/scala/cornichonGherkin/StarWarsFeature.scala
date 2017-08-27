@@ -4,12 +4,9 @@ import cats.syntax.either._
 
 class StarWarsFeature extends GherkinBasedFeature {
   lazy val stepDefinitions = Steps {
-step"I get ${strArg.ph}" { url ⇒
-  Attach {
-    When I get(url.toString)
-    Then assert status.is(200)
-  }
-}
+    step"I get ${strArg.ph}: ${getParams.opt}" { (url, params) ⇒
+      When I get(url.toString).withParams(params.map(_.toList).getOrElse(Nil): _*)
+    }
 
     step"response code is $intArg" { code ⇒
       Then assert status.is(code)
