@@ -5,8 +5,7 @@ import cats.syntax.either._
 class StarWarsFeature extends GherkinBasedFeature {
   lazy val stepDefinitions = Steps {
     step"I get ${strArg.ph}: ${getParams.opt}" { (url, params) ⇒
-      When I get(url.toString)
-        .withParams(params.map(_.toList).getOrElse(Nil): _*)
+      When I get(url.toString).withParams(params.map(_.toList).getOrElse(Nil): _*)
     }
 
     step"response code is $intArg" { code ⇒
