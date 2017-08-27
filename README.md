@@ -69,6 +69,47 @@ Feature: Star Wars API
     ...
 ```
 
+### Step Definitions
+
+Step definitions are based on regular expressions, but `StringContext`-based `step` macro makes it type safe. Regular expressions
+(variable parts of the step) can only be expressed with string-interpolation variable which must be of type `RegExpExtractor`.
+
+Here is an example:
+
+```scala
+step"response body at path $strArg $whitelist is: $strTableArg" { (path, wl, value) ⇒
+  Then assert body.copy(whitelist = wl).path(path).is(value)
+}
+
+lazy val whitelist: RegExpExtractor[Boolean] =
+  strArg("with whitelisting").opt.transform(v ⇒ Right(v.isDefined))
+```
+
+As you can see, you can also transform the arguments. Each argument also can be made optional with `arg.opt` or accept a placeholder (like `<foo-bar>`)
+in place of this argument with `arg.ph` (resulting type is of type `Argument[T]` which can be either `Value[T]` or a `Placeholder[T]`).
+
+Doc strings and data tables are also supported. They must appear at the end of the step definition string proceeded by colon (e.g. `"...: $foo"`).
+This last argument must be either of type `TableExtractor[T]` or `DocStringExtractor[T]`.
+
+Here is an example:
+
+```scala
+step"response body $whitelist is: $docStrArg" { (whitelist, respBody) ⇒
+  Then assert body.copy(whitelist = whitelist).is(respBody)
+}
+```
+
+The body of step definition is just normal cornichon `Step`. if you would like to define several cornichon steps, just use `Attach` step:
+
+```scala
+step"I get ${strArg.ph}" { url ⇒
+  Attach {
+    When I get(url.toString)
+    Then assert status.is(200)
+  }
+}
+```
+
 ### Tags
 
 Out-of-the-box supported tags:
