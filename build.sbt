@@ -1,6 +1,6 @@
 name := "cornichon-gherkin"
 organization := "com.github.olegilyenko"
-version := "0.0.0"
+version := "0.1.0-SNAPSHOT"
 
 description := "Cornichon - Gherkin integration"
 licenses := Seq("Apache License, ASL Version 2.0" → url("http://www.apache.org/licenses/LICENSE-2.0"))
