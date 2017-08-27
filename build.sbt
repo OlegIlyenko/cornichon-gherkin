@@ -24,7 +24,7 @@ publishTo := Some(
     "releases" at "https://oss.sonatype.org/service/local/staging/deploy/maven2")
 
 startYear := Some(2017)
-organizationHomepage := Some(url("cornichon-gherkinl"))
+organizationHomepage := Some(url("https://github.com/OlegIlyenko/cornichon-gherkin"))
 developers := Developer("OlegIlyenko", "Oleg Ilyenko", "", url("https://github.com/OlegIlyenko")) :: Nil
 scmInfo := Some(ScmInfo(
   browseUrl = url("https://github.com/OlegIlyenko/cornichon-gherkin.git"),
@@ -34,5 +34,5 @@ scmInfo := Some(ScmInfo(
 // nice *magenta* prompt!
 
 shellPrompt in ThisBuild := { state ⇒
-  scala.Console.GREEN_B + Project.extract(state).currentRef.project + "> " + scala.Console.RESET
+  scala.Console.GREEN + Project.extract(state).currentRef.project + "> " + scala.Console.RESET
 }
