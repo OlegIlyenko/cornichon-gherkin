@@ -21,6 +21,10 @@ class StarWarsFeature extends GherkinBasedFeature {
       Then assert body.path(path).is(value)
     }
 
+    step"response body at path $strArg $whitelist is: $strTableArg" { (path, wl, value) ⇒
+      Then assert body.copy(whitelist = wl).path(path).is(value)
+    }
+
     step"I save path '$strArg' as '$strArg'" { (path, value) ⇒
       And I save_body_path(path → value)
     }
@@ -33,6 +37,8 @@ class StarWarsFeature extends GherkinBasedFeature {
   lazy val whitelist = strArg("with whitelisting").opt.transform(v ⇒ Right(v.isDefined))
 
   lazy val getParams = tableArg(
-    Column.parseTable(_, ColumnGroup(matchAll, stringColumn("Param"), stringColumn("Value"))((_, name, value) ⇒ Right(name → value)))
+    Column.parseTable(_,
+      ColumnGroup(matchAll, stringColumn("Param"), stringColumn("Value"))(
+        (_, name, value) ⇒ Right(name → value)))
       .map(_ groupBy (_._1) mapValues (_.head._2)))
 }

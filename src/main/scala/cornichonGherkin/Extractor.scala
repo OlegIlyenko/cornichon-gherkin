@@ -21,7 +21,7 @@ trait ExtractorHelper {
   def jsonArg = docStrArg(CornichonJson.parseJson(_))
 
   def tableArg[T](transformFn: List[Map[String, String]] ⇒ Either[CornichonError, T]): TableExtractor[T] =
-    TableExtractor(raw ⇒ {
+    TableExtractor { raw ⇒
       if (raw.isEmpty)
         Left(GherkinError("Table must contain at least a header row"))
       else {
@@ -29,7 +29,13 @@ trait ExtractorHelper {
 
         transformFn(raw.tail.map(row ⇒ headers.zip(row).toMap))
       }
-    })
+    }
+
+  lazy val strTableArg = TableExtractor { rows ⇒
+    val colSizes = rows.map(_ map (_.length)).transpose.map(_.max)
+
+    Right(rows.map(_ zip colSizes map {case (v, size) ⇒ s"%-${size}s" format v} mkString ("| ", " | ", " |")) mkString ("\n", "\n", "\n"))
+  }
 
   lazy val tableArg: TableExtractor[List[Map[String, String]]] = tableArg(t ⇒ Right(t))
   lazy val docStrArg: DocStringExtractor[String] = docStrArg(s ⇒ Right(s))
