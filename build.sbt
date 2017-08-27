@@ -1,4 +1,5 @@
 name := "cornichon-gherkin"
+organization := "com.github.olegilyenko"
 version := "0.0.0-SNAPSHOT"
 
 description := "Cornichon - Gherkin integration"
